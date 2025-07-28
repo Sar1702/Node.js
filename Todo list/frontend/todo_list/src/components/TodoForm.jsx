@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 
 const TodoForm = ({ onAdd, filter, setFilter }) => {
-  const [title, setTitle] = useState('');
+  const [text, setText] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title.trim()) return;
-    onAdd(title);
-    setTitle('');
+    if (!text.trim()) return;
+    onAdd(text.trim());
+    setText('');
   };
 
   return (
@@ -16,8 +16,8 @@ const TodoForm = ({ onAdd, filter, setFilter }) => {
         type="text"
         className="flex-1 p-3 border rounded shadow-sm"
         placeholder="Add a task..."
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
       />
       <div className="flex gap-2">
         <button

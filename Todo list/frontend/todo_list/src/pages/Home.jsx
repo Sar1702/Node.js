@@ -6,25 +6,58 @@ import todoService from '../services/todoService';
 const Home = () => {
   const [todos, setTodos] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const fetchTodos = async () => {
-    const res = await todoService.getTodos();
-    setTodos(res.data.reverse()); // latest on top
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await todoService.getTodos();
+      setTodos(response.data || []); // Backend already sorts by newest first
+    } catch (error) {
+      setError(error.message);
+      console.error('Failed to fetch todos:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const addTodo = async (title) => {
-    const res = await todoService.createTodo(title);
-    setTodos([res.data, ...todos]);
+  const addTodo = async (text) => {
+    try {
+      setError(null);
+      const response = await todoService.createTodo(text);
+      if (response.success && response.data) {
+        setTodos([response.data, ...todos]);
+      } else {
+        throw new Error(response.message || 'Failed to add todo');
+      }
+    } catch (error) {
+      setError(error.message);
+      console.error('Failed to add todo:', error);
+    }
   };
 
   const updateTodo = async (id, updates) => {
-    const res = await todoService.updateTodo(id, updates);
-    setTodos(todos.map(todo => todo._id === id ? res.data : todo));
+    try {
+      setError(null);
+      const response = await todoService.updateTodo(id, updates);
+      setTodos(todos.map(todo => todo._id === id ? response.data : todo));
+    } catch (error) {
+      setError(error.message);
+      console.error('Failed to update todo:', error);
+    }
   };
 
   const deleteTodo = async (id) => {
-    await todoService.deleteTodo(id);
-    setTodos(todos.filter(todo => todo._id !== id));
+    try {
+      setError(null);
+      await todoService.deleteTodo(id);
+      setTodos(todos.filter(todo => todo._id !== id));
+    } catch (error) {
+      setError(error.message);
+      console.error('Failed to delete todo:', error);
+    }
   };
 
   const filteredTodos = todos.filter(todo => {
